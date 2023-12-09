@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
+import "hardhat/console.sol";
+
 contract Conversly {
 	address public owner;
 	bool public isPrivate;
@@ -15,7 +17,7 @@ contract Conversly {
 	GroupEncryptedMessage[] public groupEncryptedMessages;
 
 	mapping(address => bytes32) public participantKeys; // Symmetric keys shared with each participant
-	mapping(address participant  => bool isParticipant) public participants;
+	mapping(address participant => bool isParticipant) public participants;
 
 	event GroupEncryptedMessageSent(
 		address indexed sender,
@@ -26,11 +28,13 @@ contract Conversly {
 	event ParticipantAdded(address indexed participant);
 
 	modifier onlyOwner() {
+		console.log(msg.sender);
 		require(msg.sender == owner, "Only the owner can call this function");
 		_;
 	}
 
 	modifier onlyParticipant() {
+		console.log("only participant", msg.sender);
 		require(
 			participants[msg.sender],
 			"Only participants can call this function"
@@ -38,7 +42,12 @@ contract Conversly {
 		_;
 	}
 
-	constructor(address _owner, string memory _name, bool _isPrivate,address[] memory initialParticipants) {
+	constructor(
+		address _owner,
+		string memory _name,
+		bool _isPrivate,
+		address[] memory initialParticipants
+	) {
 		owner = _owner;
 		participants[_owner] = true;
 		conversationName = _name;
@@ -47,13 +56,13 @@ contract Conversly {
 		emit ConversationCreated(_owner);
 
 		// Add initial participants
-        for (uint256 i = 0; i < initialParticipants.length; i++) {
-            address participant = initialParticipants[i];
-            require(participant != address(0), "Invalid participant address");
-            require(!participants[participant], "Participant already exists");
-            participants[participant] = true;
-            emit ParticipantAdded(participant);
-        }
+		for (uint256 i = 0; i < initialParticipants.length; i++) {
+			address participant = initialParticipants[i];
+			require(participant != address(0), "Invalid participant address");
+			require(!participants[participant], "Participant already exists");
+			participants[participant] = true;
+			emit ParticipantAdded(participant);
+		}
 		// generate key
 		generateAndSetConversationKey();
 	}
@@ -66,8 +75,11 @@ contract Conversly {
 
 	function joinConversation() public {
 		require(!participants[msg.sender], "Already a participant");
+		require(!isPrivate, "You can only join public conversations");
 		participants[msg.sender] = true;
 		emit ParticipantAdded(msg.sender);
+
+		console.log("Joined conversation", msg.sender);
 	}
 
 	function sendGroupEncryptedMessage(
@@ -101,18 +113,30 @@ contract Conversly {
 	}
 
 	// Function to retrieve the conversation key (only accessible to participants)
+	// function getConversationKeys() public returns (bytes32) {
+	// 	if (isPrivate) {
+	// 		require(participants[msg.sender], "Caller is not a participant");
+	// 	}
+
+	// 	if (!isPrivate && !participants[msg.sender]) {
+	// 		participants[msg.sender] = true;
+	// 	}
+	// 	// hasKey[msg.sender] = true; // Mark that the participant has retrieved the key
+	// 	return conversationKey;
+	// }
+
+	function isParticipant() public view returns (bool) {
+		console.log("isparticipant", msg.sender);
+		return participants[msg.sender];
+	}
+
 	function getConversationKeys()
 		public
+		view
+		onlyParticipant
 		returns (bytes32)
 	{
-		if(isPrivate){
-			require(participants[msg.sender], "Caller is not a participant");
-		}
-
-		if(!isPrivate && !participants[msg.sender]){
-			participants[msg.sender] = true;
-		}
-		// hasKey[msg.sender] = true; // Mark that the participant has retrieved the key
+		console.log("getkey", msg.sender);
 		return conversationKey;
 	}
 }

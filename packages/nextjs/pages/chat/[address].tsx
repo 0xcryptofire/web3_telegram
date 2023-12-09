@@ -48,6 +48,32 @@ const Chat: NextPage = () => {
 
       try {
         // get encryption key
+        const isParticipant: any = await publicClient.readContract({
+          address: addressRef.current,
+          abi: conversly.abi,
+          functionName: "isParticipant",
+        });
+
+        console.log(isParticipant);
+
+        if (!isParticipant) {
+          notification.info(`Joining Conversation`);
+          const hash: `0x${string}` | undefined = await signer?.writeContract({
+            address: addressRef.current,
+            abi: conversly.abi,
+            functionName: "joinConversation",
+          });
+
+          if (!hash) return;
+
+          await publicClient.waitForTransactionReceipt({ hash });
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+
+      try {
+        // get encryption key
         const response: any = await publicClient.readContract({
           address: addressRef.current,
           abi: conversly.abi,

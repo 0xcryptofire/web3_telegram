@@ -107,7 +107,7 @@ const conversly = {
           type: "bytes32",
         },
       ],
-      stateMutability: "nonpayable",
+      stateMutability: "view",
       type: "function",
     },
     {
@@ -142,6 +142,19 @@ const conversly = {
           internalType: "string",
           name: "encryptedContent",
           type: "string",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "isParticipant",
+      outputs: [
+        {
+          internalType: "bool",
+          name: "",
+          type: "bool",
         },
       ],
       stateMutability: "view",
