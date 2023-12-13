@@ -33,8 +33,20 @@ const Create: NextPage = () => {
       notification.info(`Busy`);
       return;
     }
+    console.log(
+      "Why 1",
+      converslyRegistryContract,
+      isLoadingSigner || isLoadingConverslyRegistryContract || !converslyRegistryContract || !connectedAccount,
+      isLoadingSigner,
+      isLoadingConverslyRegistryContract,
+      !converslyRegistryContract,
+      !connectedAccount,
+    );
+
     if (isLoadingSigner || isLoadingConverslyRegistryContract || !converslyRegistryContract || !connectedAccount)
       return;
+
+    console.log("Why 2");
 
     setIsLoading(true);
     setIsCreating(true);

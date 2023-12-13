@@ -71,12 +71,8 @@ contract ConverslyRegistry {
 			count++;
 		}
 
-		console.log("hello 4");
-
-
 		// Add private conversations that the user is a participant in to the result
 		for (uint256 i = 0; i < privateConversations.length; i++) {
-			console.log("hello");
 			address conversationAddress = privateConversations[i];
 
 			Conversly conversation = Conversly(conversationAddress);

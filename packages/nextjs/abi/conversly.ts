@@ -98,7 +98,13 @@ const conversly = {
       type: "function",
     },
     {
-      inputs: [],
+      inputs: [
+        {
+          internalType: "address",
+          name: "_user",
+          type: "address",
+        },
+      ],
       name: "getConversationKeys",
       outputs: [
         {
@@ -111,7 +117,13 @@ const conversly = {
       type: "function",
     },
     {
-      inputs: [],
+      inputs: [
+        {
+          internalType: "address",
+          name: "_user",
+          type: "address",
+        },
+      ],
       name: "getGroupEncryptedMessages",
       outputs: [
         {
@@ -148,7 +160,13 @@ const conversly = {
       type: "function",
     },
     {
-      inputs: [],
+      inputs: [
+        {
+          internalType: "address",
+          name: "_user",
+          type: "address",
+        },
+      ],
       name: "isParticipant",
       outputs: [
         {
@@ -174,7 +192,13 @@ const conversly = {
       type: "function",
     },
     {
-      inputs: [],
+      inputs: [
+        {
+          internalType: "address",
+          name: "_user",
+          type: "address",
+        },
+      ],
       name: "joinConversation",
       outputs: [],
       stateMutability: "nonpayable",
@@ -233,6 +257,11 @@ const conversly = {
     },
     {
       inputs: [
+        {
+          internalType: "address",
+          name: "_user",
+          type: "address",
+        },
         {
           internalType: "string",
           name: "encryptedContent",

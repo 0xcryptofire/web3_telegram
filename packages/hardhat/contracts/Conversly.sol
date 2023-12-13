@@ -73,25 +73,34 @@ contract Conversly {
 		emit ParticipantAdded(participant);
 	}
 
-	function joinConversation() public {
-		require(!participants[msg.sender], "Already a participant");
+	function joinConversation(address _user) public {
+		require(!participants[_user], "Already a participant");
 		require(!isPrivate, "You can only join public conversations");
-		participants[msg.sender] = true;
-		emit ParticipantAdded(msg.sender);
+		participants[_user] = true;
+		emit ParticipantAdded(_user);
 
 		console.log("Joined conversation", msg.sender);
 	}
 
 	function sendGroupEncryptedMessage(
+		address _user,
 		string memory encryptedContent
-	) public onlyParticipant {
-		groupEncryptedMessages.push(
-			GroupEncryptedMessage(msg.sender, encryptedContent)
+	) public {
+		require(
+			participants[_user],
+			"Only participants can call this function"
 		);
-		emit GroupEncryptedMessageSent(msg.sender, encryptedContent);
+		groupEncryptedMessages.push(
+			GroupEncryptedMessage(_user, encryptedContent)
+		);
+		emit GroupEncryptedMessageSent(_user, encryptedContent);
 	}
 
-	function getGroupEncryptedMessages() public view returns (string[] memory) {
+	function getGroupEncryptedMessages(address _user) public view returns (string[] memory) {
+		require(
+			participants[_user],
+			"Only participants can call this function"
+		);
 		string[] memory messages = new string[](groupEncryptedMessages.length);
 		for (uint256 i = 0; i < groupEncryptedMessages.length; i++) {
 			messages[i] = groupEncryptedMessages[i].encryptedContent;
@@ -125,17 +134,20 @@ contract Conversly {
 	// 	return conversationKey;
 	// }
 
-	function isParticipant() public view returns (bool) {
-		console.log("isparticipant", msg.sender);
-		return participants[msg.sender];
+	function isParticipant(address _user) public view returns (bool) {
+		console.log("isparticipant", _user);
+		return participants[_user];
 	}
 
-	function getConversationKeys()
+	function getConversationKeys(address _user)
 		public
 		view
-		onlyParticipant
 		returns (bytes32)
 	{
+		require(
+			participants[_user],
+			"Only participants can call this function"
+		);
 		console.log("getkey", msg.sender);
 		return conversationKey;
 	}

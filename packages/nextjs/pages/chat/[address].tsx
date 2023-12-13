@@ -16,6 +16,7 @@ import { notification } from "~~/utils/scaffold-eth";
 const Chat: NextPage = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [topic, setTopic] = useState<string>("");
+  const [hasJoined, setHasJoined] = useState<boolean>(false);
   const [messageNo, setMessageNo] = useState<number>(0);
   const [unwatchFunctions, setUnwatchFunctions] = useState<any>([]);
   const [chat, setChat] = useState<any>("");
@@ -38,6 +39,46 @@ const Chat: NextPage = () => {
     setMessages((prevMessages: any) => [...prevMessages, newMessage]);
   };
 
+  // get encryption key
+  const getKeyFromContract = async () => {
+    // get encryption key
+    const response: any = await publicClient.readContract({
+      address: addressRef.current,
+      abi: conversly.abi,
+      functionName: "getConversationKeys",
+      args: [connectedAccount],
+    });
+
+    setPK(response);
+  };
+
+  // join conversation
+  const joinConversation = async () => {
+    const notificationId = notification.loading(`Joining Conversation`);
+
+    try {
+      console.log(addressRef.current, signer);
+      const hash: `0x${string}` | undefined = await signer?.writeContract({
+        address: addressRef.current,
+        abi: conversly.abi,
+        functionName: "joinConversation",
+        args: [connectedAccount],
+      });
+      console.log("first34", hash);
+
+      if (!hash) return;
+
+      await publicClient.waitForTransactionReceipt({ hash });
+      await getKeyFromContract();
+    } catch (error) {
+      console.log(error);
+      notification.remove(notificationId);
+    } finally {
+      // await getKeyFromContract();
+      notification.remove(notificationId);
+    }
+  };
+
   useEffect(() => {
     (async () => {
       if (!isConnected) return;
@@ -52,36 +93,21 @@ const Chat: NextPage = () => {
           address: addressRef.current,
           abi: conversly.abi,
           functionName: "isParticipant",
+          args: [connectedAccount],
         });
 
-        console.log(isParticipant);
-
-        if (!isParticipant) {
-          notification.info(`Joining Conversation`);
-          const hash: `0x${string}` | undefined = await signer?.writeContract({
-            address: addressRef.current,
-            abi: conversly.abi,
-            functionName: "joinConversation",
-          });
-
-          if (!hash) return;
-
-          await publicClient.waitForTransactionReceipt({ hash });
+        if (isParticipant) {
+          await getKeyFromContract();
         }
+
+        setHasJoined(isParticipant);
+
+        console.log("isParticipant", isParticipant);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
 
       try {
-        // get encryption key
-        const response: any = await publicClient.readContract({
-          address: addressRef.current,
-          abi: conversly.abi,
-          functionName: "getConversationKeys",
-        });
-
-        setPK(response);
-
         // get conversation topic
         const topicR: any = await publicClient.readContract({
           address: addressRef.current,
@@ -91,23 +117,27 @@ const Chat: NextPage = () => {
 
         setTopic(topicR);
 
-        // get and set messages
-        const msg: any = await publicClient.readContract({
-          address: addressRef.current,
-          abi: conversly.abi,
-          functionName: "getGroupEncryptedMessages",
-        });
+        if (hasJoined) {
+          // get and set messages
+          const msg: any = await publicClient.readContract({
+            address: addressRef.current,
+            abi: conversly.abi,
+            functionName: "getGroupEncryptedMessages",
+            args: [connectedAccount],
+          });
 
-        const nMessages = [];
-        for (let i = 0; i < msg.length; i++) {
-          const element = msg[i];
+          const nMessages = [];
+          for (let i = 0; i < msg.length; i++) {
+            const element = msg[i];
 
-          const d = await decryptData(element, pk);
-          nMessages.push(d);
+            const d = await decryptData(element, pk);
+
+            nMessages.push(d);
+          }
+
+          setMessages(nMessages);
+          setMessageNo(nMessages.length);
         }
-
-        setMessages(nMessages);
-        setMessageNo(nMessages.length);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -115,7 +145,7 @@ const Chat: NextPage = () => {
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected, addressRef.current, pk]);
+  }, [isConnected, addressRef.current, pk, hasJoined]);
 
   // watch contracts
   // Function to unsubscribe from all watchers
@@ -159,8 +189,6 @@ const Chat: NextPage = () => {
     };
   }, [addressRef.current, pk]);
 
-  // ...
-
   const handleSend = async () => {
     try {
       if (chat === "") {
@@ -173,7 +201,7 @@ const Chat: NextPage = () => {
         address: addressRef.current,
         abi: conversly.abi,
         functionName: "sendGroupEncryptedMessage",
-        args: [data],
+        args: [connectedAccount, data],
       });
 
       if (!hash) return;
@@ -279,9 +307,19 @@ const Chat: NextPage = () => {
                     <p>{messageNo} Messages</p>
                   </div>
                 </div>
-                <span id="action_menu_btn">
-                  <i className="fas fa-ellipsis-v"></i>
-                </span>
+                {!hasJoined ? (
+                  <span
+                    onClick={joinConversation}
+                    style={{ fontSize: "12px" }}
+                    className="btn btn-outline"
+                    id="action_menu_btn"
+                  >
+                    {/* <i className="fas fa-ellipsis-v"></i> */}
+                    Join Conversation
+                  </span>
+                ) : (
+                  ""
+                )}
               </div>
               <div className="card-body msg_card_body">
                 {messages.map((msg, index) => (
