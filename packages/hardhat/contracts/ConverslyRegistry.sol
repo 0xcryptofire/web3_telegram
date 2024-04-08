@@ -9,8 +9,8 @@ contract ConverslyRegistry {
 	address[] public publicConversations;
 	address[] private privateConversations;
 
-    mapping(address => bool) privateConversationExists;
-    mapping(address => bool) publicConversationExists;
+	mapping(address => bool) privateConversationExists;
+	mapping(address => bool) publicConversationExists;
 
 	struct ConversationInfo {
 		address conversationAddress;
@@ -18,27 +18,24 @@ contract ConverslyRegistry {
 		bool isPrivate; // Added visibility flag
 	}
 
-    function startConversation(string memory _name, bool _isPrivate, address _owner, address[] memory _participants) public {
-        Conversly newConversation = new Conversly(_owner, _name, _isPrivate, _participants );
-        address conversationAddress = address(newConversation);
-        privateConversationExists[conversationAddress] = _isPrivate;
-        publicConversationExists[conversationAddress] = !_isPrivate;
+	function startConversation(string memory _name, address _owner) public {
+		Conversly newConversation = new Conversly(_owner, _name);
+		address conversationAddress = address(newConversation);
 
-        if (_isPrivate) {
-            require(privateConversationExists[conversationAddress], "Private conversation creation failed");
-			privateConversations.push(conversationAddress);
+		require(
+				publicConversationExists[conversationAddress],
+				"Public conversation creation failed"
+			);
+			publicConversations.push(conversationAddress);
+	}
 
-        } else {
-            require(publicConversationExists[conversationAddress], "Public conversation creation failed");
-            publicConversations.push(conversationAddress);
-        }
-    }
+	function getPublicConversations() public view returns (address[] memory) {
+		return publicConversations;
+	}
 
-    function getPublicConversations() public view returns (address[] memory) {
-        return publicConversations;
-    }
-
-	function getAllConversationInfo(address _user) public view returns (ConversationInfo[] memory) {
+	function getAllConversationInfo(
+		address _user
+	) public view returns (ConversationInfo[] memory) {
 		uint256 numberOfPublicConversations = publicConversations.length;
 		uint256 numberOfPrivateConversations = 0;
 
@@ -47,7 +44,10 @@ contract ConverslyRegistry {
 			address conversationAddress = privateConversations[i];
 			Conversly conversation = Conversly(conversationAddress);
 
-			if (conversation.participants(_user) && privateConversationExists[conversationAddress]) {
+			if (
+				conversation.participants(_user) &&
+				privateConversationExists[conversationAddress]
+			) {
 				numberOfPrivateConversations++;
 			}
 		}
@@ -77,9 +77,17 @@ contract ConverslyRegistry {
 
 			Conversly conversation = Conversly(conversationAddress);
 
-			console.log("hello", msg.sender,_user,conversation.participants(_user));
+			console.log(
+				"hello",
+				msg.sender,
+				_user,
+				conversation.participants(_user)
+			);
 
-			if (conversation.participants(_user) && privateConversationExists[conversationAddress]) {
+			if (
+				conversation.participants(_user) &&
+				privateConversationExists[conversationAddress]
+			) {
 				conversationInfo[count] = ConversationInfo(
 					conversationAddress,
 					// bytes32ToString(conversation.conversationName()), // Convert bytes32 to string
@@ -92,12 +100,13 @@ contract ConverslyRegistry {
 
 		console.log("hello 6");
 
-
 		return conversationInfo;
 	}
 
 	// Helper function to convert bytes32 to string
-	function bytes32ToString(bytes32 _bytes32) internal pure returns (string memory) {
+	function bytes32ToString(
+		bytes32 _bytes32
+	) internal pure returns (string memory) {
 		// Convert bytes32 to bytes and then to string
 		bytes memory byteArray = new bytes(32);
 		for (uint i = 0; i < 32; i++) {
@@ -105,5 +114,4 @@ contract ConverslyRegistry {
 		}
 		return string(byteArray);
 	}
-
 }

@@ -5,7 +5,6 @@ import "hardhat/console.sol";
 
 contract Conversly {
 	address public owner;
-	bool public isPrivate;
 	string public conversationName; // Private key for symmetric encryption
 	bytes32 private conversationKey; // Private key for symmetric encryption
 
@@ -42,27 +41,21 @@ contract Conversly {
 		_;
 	}
 
-	constructor(
-		address _owner,
-		string memory _name,
-		bool _isPrivate,
-		address[] memory initialParticipants
-	) {
+	constructor(address _owner, string memory _name) {
 		owner = _owner;
 		participants[_owner] = true;
 		conversationName = _name;
-		isPrivate = _isPrivate;
 		emit ParticipantAdded(_owner);
 		emit ConversationCreated(_owner);
 
 		// Add initial participants
-		for (uint256 i = 0; i < initialParticipants.length; i++) {
-			address participant = initialParticipants[i];
-			require(participant != address(0), "Invalid participant address");
-			require(!participants[participant], "Participant already exists");
-			participants[participant] = true;
-			emit ParticipantAdded(participant);
-		}
+		// for (uint256 i = 0; i < initialParticipants.length; i++) {
+		// 	address participant = initialParticipants[i];
+		// 	require(participant != address(0), "Invalid participant address");
+		// 	require(!participants[participant], "Participant already exists");
+		// 	participants[participant] = true;
+		// 	emit ParticipantAdded(participant);
+		// }
 		// generate key
 		generateAndSetConversationKey();
 	}
@@ -75,8 +68,8 @@ contract Conversly {
 
 	function joinConversation(address _user) public {
 		require(!participants[_user], "Already a participant");
-		require(!isPrivate, "You can only join public conversations");
-		participants[_user] = true;
+		// require(!isPrivate, "You can only join public conversations");
+		// participants[_user] = true;
 		emit ParticipantAdded(_user);
 
 		console.log("Joined conversation", msg.sender);
@@ -96,7 +89,9 @@ contract Conversly {
 		emit GroupEncryptedMessageSent(_user, encryptedContent);
 	}
 
-	function getGroupEncryptedMessages(address _user) public view returns (string[] memory) {
+	function getGroupEncryptedMessages(
+		address _user
+	) public view returns (string[] memory) {
 		require(
 			participants[_user],
 			"Only participants can call this function"
@@ -114,7 +109,7 @@ contract Conversly {
 
 		// Generate a new symmetric key for the conversation
 		bytes32 newKey = keccak256(
-			abi.encodePacked(block.timestamp, block.difficulty, msg.sender)
+			abi.encodePacked(block.timestamp, block.prevrandao, msg.sender)
 		);
 
 		// Set the conversation key
@@ -139,11 +134,7 @@ contract Conversly {
 		return participants[_user];
 	}
 
-	function getConversationKeys(address _user)
-		public
-		view
-		returns (bytes32)
-	{
+	function getConversationKeys(address _user) public view returns (bytes32) {
 		require(
 			participants[_user],
 			"Only participants can call this function"

@@ -59,27 +59,27 @@ const Create: NextPage = () => {
 
     const sAddress = [];
 
-    const pArray = paricipants.split(",");
+    // const pArray = paricipants.split(",");
 
-    if (pArray.length > 0) {
-      for (let i = 0; i < pArray.length; i++) {
-        const element = pArray[i];
-        if (element === "") continue;
-        if (!isAddress(element)) {
-          notification.error(`${element} is not a valid address`);
-          break;
-        }
+    // if (pArray.length > 0) {
+    //   for (let i = 0; i < pArray.length; i++) {
+    //     const element = pArray[i];
+    //     if (element === "") continue;
+    //     if (!isAddress(element)) {
+    //       notification.error(`${element} is not a valid address`);
+    //       break;
+    //     }
 
-        sAddress.push(element);
-      }
-    }
+    //     sAddress.push(element);
+    //   }
+    // }
 
     try {
       const hash: `0x${string}` | undefined = await signer?.writeContract({
         address: converslyRegistryContract?.address,
         abi: converslyRegistryContract?.abi,
         functionName: "startConversation",
-        args: [topic, isP, connectedAccount, sAddress],
+        args: [topic, connectedAccount],
       });
 
       if (!hash) return;
@@ -101,7 +101,7 @@ const Create: NextPage = () => {
       <MetaHeader />
       <div className="main-content">
         <div className="container-c">
-          <div className="text">Start your conversation</div>
+          <div className="text">Create your channel</div>
           <form action="#">
             <div className="form-row">
               <div className="input-data">
@@ -118,45 +118,8 @@ const Create: NextPage = () => {
             </div>
             <div className="form-row">
               <div className="input-data">
-                <input
-                  onChange={e => {
-                    setIsPrivate(e.target.value);
-                  }}
-                  type="text"
-                />
                 <div className="underline"></div>
-                <label htmlFor="">Private? (true or false)</label>
-              </div>
-            </div>
-            <div className="form-row">
-              <div className="input-data">
-                <input
-                  onChange={e => {
-                    setParicipants(e.target.value);
-                  }}
-                  type="text"
-                />
-                <div className="underline"></div>
-                <label htmlFor="">Add Paricipants (comma seperated)</label>
-                <br />
-                <div className="form-row submit-btn">
-                  <div className="input-data" id="btn-s">
-                    <div className="inner"></div>
-                    <input
-                      // onSubmit={e => {
-                      //   e.preventDefault();
-                      //   handleCreate();
-                      // }}
-                      onClick={e => {
-                        e.preventDefault();
-                        handleCreate();
-                      }}
-                      disabled={isLoading || isCreating ? true : false}
-                      type="submit"
-                      value="submit"
-                    />
-                  </div>
-                </div>
+                <label htmlFor="">Channel owner: {connectedAccount}</label>
               </div>
             </div>
           </form>
