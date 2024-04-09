@@ -15,7 +15,6 @@ import { notification } from "~~/utils/scaffold-eth";
 const Create: NextPage = () => {
   // component states
   const [topic, setTopic] = useState<string>("");
-  const [isPrivate, setIsPrivate] = useState<string>("");
   const [isCreating, setIsCreating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,61 +24,44 @@ const Create: NextPage = () => {
   const publicClient = usePublicClient();
   const { data: signer, isLoading: isLoadingSigner } = useWalletClient();
 
-  const { data: converslyRegistryContract, isLoading: isLoadingConverslyRegistryContract } =
-    useDeployedContractInfo("ConverslyRegistry");
+  const { data: channelRegistryContract, isLoading: isLoadingChannelRegistryContract } =
+    useDeployedContractInfo("ChannelRegistry");
 
   const handleCreate = async () => {
     if (isCreating) {
       notification.info(`Busy`);
       return;
     }
-    console.log(
-      "Why 1",
-      converslyRegistryContract,
-      isLoadingSigner || isLoadingConverslyRegistryContract || !converslyRegistryContract || !connectedAccount,
-      isLoadingSigner,
-      isLoadingConverslyRegistryContract,
-      !converslyRegistryContract,
-      !connectedAccount,
-    );
-
-    if (isLoadingSigner || isLoadingConverslyRegistryContract || !converslyRegistryContract || !connectedAccount)
-      return;
-
-    console.log("Why 2");
+    if (isLoadingSigner || isLoadingChannelRegistryContract || !channelRegistryContract || !connectedAccount) return;
 
     setIsLoading(true);
     setIsCreating(true);
 
-    const notificationId = notification.loading(`Creating Conversation`);
-
-    const isP = isPrivate === "true" ? true : false;
-
-    // parse address
+    const notificationId = notification.loading(`Creating Channel`);
 
     const sAddress = [];
+    const pArray = paricipants.split(",");
 
-    // const pArray = paricipants.split(",");
+    if (pArray.length > 0) {
+      for (let i = 0; i < pArray.length; i++) {
+        const element = pArray[i];
+        if (element === "") continue;
+        if (!isAddress(element)) {
+          notification.error(`${element} is not a valid address`);
+          break;
+        }
 
-    // if (pArray.length > 0) {
-    //   for (let i = 0; i < pArray.length; i++) {
-    //     const element = pArray[i];
-    //     if (element === "") continue;
-    //     if (!isAddress(element)) {
-    //       notification.error(`${element} is not a valid address`);
-    //       break;
-    //     }
-
-    //     sAddress.push(element);
-    //   }
-    // }
+        sAddress.push(element);
+      }
+    }
+    console.log({ sAddress });
 
     try {
       const hash: `0x${string}` | undefined = await signer?.writeContract({
-        address: converslyRegistryContract?.address,
-        abi: converslyRegistryContract?.abi,
-        functionName: "startConversation",
-        args: [topic, connectedAccount],
+        address: channelRegistryContract?.address,
+        abi: channelRegistryContract?.abi,
+        functionName: "createChannel",
+        args: [topic, connectedAccount, sAddress],
       });
 
       if (!hash) return;
@@ -113,13 +95,41 @@ const Create: NextPage = () => {
                   required
                 />
                 <div className="underline"></div>
-                <label htmlFor=""> Conversation topic</label>
+                <label htmlFor=""> Channel name</label>
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="input-data">
+                <input
+                  onChange={e => {
+                    setParicipants(e.target.value);
+                  }}
+                  type="text"
+                />
+                <div className="underline"></div>
+                <label htmlFor="">Add Members (comma seperated, no space)</label>
+                <br />
               </div>
             </div>
             <div className="form-row">
               <div className="input-data">
                 <div className="underline"></div>
-                <label htmlFor="">Channel owner: {connectedAccount}</label>
+                <label htmlFor="">Channel owner will be {connectedAccount}</label>
+              </div>
+            </div>
+            <div className="form-row submit-btn">
+              <div className="input-data" id="btn-s">
+                <div className="inner"></div>
+                <input
+                  onClick={e => {
+                    e.preventDefault();
+                    handleCreate();
+                  }}
+                  disabled={isLoading || isCreating ? true : false}
+                  type="submit"
+                  value="submit"
+                />
               </div>
             </div>
           </form>

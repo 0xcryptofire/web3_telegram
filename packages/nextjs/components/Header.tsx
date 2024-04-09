@@ -14,12 +14,16 @@ type HeaderMenuLink = {
 
 export const menuLinks: HeaderMenuLink[] = [
   {
-    label: "Home",
+    label: "Channels",
     href: "/",
   },
   {
     label: "Start A Conversation",
     href: "/create",
+  },
+  {
+    label: "Manage Your Channels",
+    href: "/manage",
   },
   {
     label: "Debug Contracts",
@@ -92,11 +96,11 @@ export const Header = () => {
         </div>
         <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
           <div className="flex relative w-10 h-10">
-            <Image alt="SE2 logo" className="cursor-pointer" fill src="/logo.svg" />
+            <Image alt="SE2 logo" className="cursor-pointer" fill src="/favicon.png" />
           </div>
           <div className="flex flex-col">
-            <span className="font-bold leading-tight">Conversly</span>
-            <span className="text-xs">Chat Anonymously</span>
+            <span className="font-bold leading-tight">CrypChat</span>
+            <span className="text-xs">WEB 3 Chat</span>
           </div>
         </Link>
         <ul className="hidden lg:flex lg:flex-nowrap menu menu-horizontal px-1 gap-2">

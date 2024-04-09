@@ -6,58 +6,9 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
   31337: {
-    ConverslyRegistry: {
-      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+    ChannelRegistry: {
+      address: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
       abi: [
-        {
-          inputs: [
-            {
-              internalType: "address",
-              name: "_user",
-              type: "address",
-            },
-          ],
-          name: "getAllConversationInfo",
-          outputs: [
-            {
-              components: [
-                {
-                  internalType: "address",
-                  name: "conversationAddress",
-                  type: "address",
-                },
-                {
-                  internalType: "string",
-                  name: "name",
-                  type: "string",
-                },
-                {
-                  internalType: "bool",
-                  name: "isPrivate",
-                  type: "bool",
-                },
-              ],
-              internalType: "struct ConverslyRegistry.ConversationInfo[]",
-              name: "",
-              type: "tuple[]",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "getPublicConversations",
-          outputs: [
-            {
-              internalType: "address[]",
-              name: "",
-              type: "address[]",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
         {
           inputs: [
             {
@@ -66,7 +17,7 @@ const deployedContracts = {
               type: "uint256",
             },
           ],
-          name: "publicConversations",
+          name: "channels",
           outputs: [
             {
               internalType: "address",
@@ -89,10 +40,116 @@ const deployedContracts = {
               name: "_owner",
               type: "address",
             },
+            {
+              internalType: "address[]",
+              name: "_participants",
+              type: "address[]",
+            },
           ],
-          name: "startConversation",
+          name: "createChannel",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_user",
+              type: "address",
+            },
+          ],
+          name: "getAllChannelInfo",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "channelAddress",
+                  type: "address",
+                },
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  internalType: "bool",
+                  name: "allowed",
+                  type: "bool",
+                },
+              ],
+              internalType: "struct ChannelRegistry.ChannelInfo[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_user",
+              type: "address",
+            },
+          ],
+          name: "getMyChannels",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "channelAddress",
+                  type: "address",
+                },
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  internalType: "uint256",
+                  name: "members",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address[]",
+                  name: "applicants",
+                  type: "address[]",
+                },
+              ],
+              internalType: "struct ChannelRegistry.MyChannelInfo[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "myChannels",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
       ],

@@ -5,10 +5,10 @@ import Conversation from "~~/components/Conversation";
 import { MetaHeader } from "~~/components/MetaHeader";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 
-const Home: NextPage = () => {
+const Manage: NextPage = () => {
   const [, setIsLoading] = useState(true);
 
-  const [channels, setChannel] = useState<any>([]);
+  const [mychannels, setMychannels] = useState<any>([]);
 
   const { address: connectedAccount, isConnected } = useAccount();
 
@@ -28,11 +28,13 @@ const Home: NextPage = () => {
       const response = await publicClient.readContract({
         address: channelRegistryContract.address,
         abi: channelRegistryContract.abi,
-        functionName: "getAllChannelInfo",
+        functionName: "getMyChannels",
         args: [connectedAccount],
       });
 
-      setChannel(response);
+      setMychannels(response);
+      console.log({ response });
+
       setIsLoading(false);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -42,19 +44,31 @@ const Home: NextPage = () => {
     <>
       <MetaHeader />
       <div className="ag-format-container">
-        <div className="ag-courses_box">
-          {channels.map((channel: any) => (
-            <Conversation
-              key={channel.channelAddress}
-              address={channel.channelAddress}
-              topic={channel.name}
-              allowed={channel.allowed}
-            />
-          ))}
+        <div className="overflow-x-auto">
+          <table className="table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>ChannelName</th>
+                <th>Members</th>
+                <th>Applicants</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mychannels.map((channel: any, idx: number) => (
+                <tr key={channel.channelAddress} className="hover">
+                  <th>{idx + 1}</th>
+                  <td>{channel.name}</td>
+                  <td>{channel.members}</td>
+                  <td>{channel.applicants?.length}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </>
   );
 };
 
-export default Home;
+export default Manage;
