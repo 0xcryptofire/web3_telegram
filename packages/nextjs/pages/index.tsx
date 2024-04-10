@@ -42,6 +42,11 @@ const Home: NextPage = () => {
     <>
       <MetaHeader />
       <div className="ag-format-container">
+        <h1 className="text-center mb-6 mt-5">
+          <span className="block text-4xl font-bold">
+            Recol Labs : Blockchain Enabled Scientific Research Collaboration Dapp
+          </span>
+        </h1>
         <div className="ag-courses_box">
           {channels.map((channel: any) => (
             <Conversation

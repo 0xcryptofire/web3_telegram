@@ -27,6 +27,11 @@ const channel = {
       type: "error",
     },
     {
+      inputs: [],
+      name: "CHANNEL_NOT_ALLOWED",
+      type: "error",
+    },
+    {
       anonymous: false,
       inputs: [
         {
@@ -38,11 +43,11 @@ const channel = {
         {
           indexed: false,
           internalType: "string",
-          name: "encryptedContent",
+          name: "message",
           type: "string",
         },
       ],
-      name: "GroupEncryptedMessageSent",
+      name: "GroupMessageSent",
       type: "event",
     },
     {
@@ -144,7 +149,7 @@ const channel = {
           type: "address",
         },
       ],
-      name: "getGroupEncryptedMessages",
+      name: "getGroupMessages",
       outputs: [
         {
           components: [
@@ -155,11 +160,11 @@ const channel = {
             },
             {
               internalType: "string",
-              name: "encryptedContent",
+              name: "message",
               type: "string",
             },
           ],
-          internalType: "struct Channel.GroupEncryptedMessage[]",
+          internalType: "struct Channel.GroupMessage[]",
           name: "",
           type: "tuple[]",
         },
@@ -212,7 +217,7 @@ const channel = {
           type: "uint256",
         },
       ],
-      name: "groupEncryptedMessages",
+      name: "groupMessages",
       outputs: [
         {
           internalType: "address",
@@ -221,7 +226,7 @@ const channel = {
         },
         {
           internalType: "string",
-          name: "encryptedContent",
+          name: "message",
           type: "string",
         },
       ],
@@ -326,11 +331,11 @@ const channel = {
         },
         {
           internalType: "string",
-          name: "encryptedContent",
+          name: "message",
           type: "string",
         },
       ],
-      name: "sendGroupEncryptedMessage",
+      name: "sendGroupMessage",
       outputs: [],
       stateMutability: "nonpayable",
       type: "function",

@@ -53,6 +53,8 @@ const Chat: NextPage = () => {
       functionName: "getchannelKeys",
       args: [connectedAccount],
     });
+    console.log("get pk", response);
+
     if (typeof response === "undefined") return;
     setPK(response);
   };
@@ -101,7 +103,7 @@ const Chat: NextPage = () => {
         const msg: any = await publicClient.readContract({
           address: addressRef.current,
           abi: channel.abi,
-          functionName: "getGroupEncryptedMessages",
+          functionName: "getGroupMessages",
           args: [connectedAccount],
         });
 
@@ -109,11 +111,13 @@ const Chat: NextPage = () => {
         for (let i = 0; i < msg.length; i++) {
           const element = msg[i];
 
-          console.log("useEffect", element);
+          console.log("useEffect", element, pk);
 
-          const d = await decryptData(element.encryptedContent, pk);
+          if (typeof pk !== "undefined" && typeof element.message !== "undefined") {
+            // const d = await decryptData(element.message, pk);
 
-          nMessages.push({ user: element.sender, message: d });
+            nMessages.push({ user: element.sender, message: element.message });
+          }
         }
 
         setMessages(nMessages);
@@ -140,27 +144,28 @@ const Chat: NextPage = () => {
     // First, unsubscribe from any existing watchers
     unwatchAll();
 
-    // Watch for GroupEncryptedMessageSent event
-    const unwatchGroupEncryptedMessageSent = publicClient.watchContractEvent({
+    // Watch for GroupMessageSent event
+    const unwatchGroupMessageSent = publicClient.watchContractEvent({
       address: addressRef.current,
       abi: channel.abi,
-      eventName: "GroupEncryptedMessageSent",
+      eventName: "GroupMessageSent",
       onLogs: async logs => {
         for (let j = 0; j < logs.length; j++) {
           const element: any = logs[j];
 
           const m = element.args;
-          console.log("watchContractEvents", m);
-
-          const d = await decryptData(m.encryptedContent, pk);
-          addMessage(m.sender, d);
-          setMessageNo(messageNo + 1);
+          console.log("watchContractEvents", m, pk);
+          if (typeof pk !== "undefined" && typeof m.message !== "undefined") {
+            // const d = await decryptData(m.message, pk);
+            addMessage(m.sender, m.message);
+            setMessageNo(messageNo + 1);
+          }
         }
       },
     });
 
     // Add the current unwatch function to the list
-    setUnwatchFunctions((prevFunctions: any) => [...prevFunctions, unwatchGroupEncryptedMessageSent]);
+    setUnwatchFunctions((prevFunctions: any) => [...prevFunctions, unwatchGroupMessageSent]);
   };
 
   useEffect(() => {
@@ -178,14 +183,14 @@ const Chat: NextPage = () => {
         return;
       }
 
-      const data = await encryptData(chat, pk);
-      console.log({ connectedAccount, data });
+      // const data = await encryptData(chat, pk);
+      // console.log({ connectedAccount, data });
 
       const hash = await signer?.writeContract({
         address: addressRef.current,
         abi: channel.abi,
-        functionName: "sendGroupEncryptedMessage",
-        args: [connectedAccount, data],
+        functionName: "sendGroupMessage",
+        args: [connectedAccount, chat],
       });
 
       if (!hash) return;
@@ -252,27 +257,30 @@ const Chat: NextPage = () => {
   async function decryptData(ciphertextWithIV: string, keyRaw: any) {
     // Decode the base64 input
     console.log({ ciphertextWithIV, keyRaw });
+    try {
+      const combined = new Uint8Array(
+        atob(ciphertextWithIV)
+          .split("")
+          .map(char => char.charCodeAt(0)),
+      );
+      const iv = combined.slice(0, 16);
+      const key = await getKey(keyRaw);
 
-    const combined = new Uint8Array(
-      atob(ciphertextWithIV)
-        .split("")
-        .map(char => char.charCodeAt(0)),
-    );
+      // Convert the key and IV to CryptoKey objects
+      // const cryptoKey = await window.crypto.subtle.importKey("raw", key, { name: "AES-CBC" }, false, ["decrypt"]);
 
-    // Extract IV
-    const iv = combined.slice(0, 16);
-    const key = await getKey(keyRaw);
+      // Decrypt the data with the key and IV
+      const decryptedData = await window.crypto.subtle.decrypt({ name: "AES-CBC", iv: iv }, key, combined.slice(16));
 
-    // Convert the key and IV to CryptoKey objects
-    // const cryptoKey = await window.crypto.subtle.importKey("raw", key, { name: "AES-CBC" }, false, ["decrypt"]);
+      // Convert the decrypted data to a string
+      const decryptedText = new TextDecoder().decode(decryptedData);
 
-    // Decrypt the data with the key and IV
-    const decryptedData = await window.crypto.subtle.decrypt({ name: "AES-CBC", iv: iv }, key, combined.slice(16));
+      return decryptedText;
+    } catch (error) {
+      console.log(error);
 
-    // Convert the decrypted data to a string
-    const decryptedText = new TextDecoder().decode(decryptedData);
-
-    return decryptedText;
+      throw new Error("decrypt error");
+    }
   }
   return (
     <>

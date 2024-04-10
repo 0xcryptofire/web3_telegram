@@ -26,7 +26,6 @@ const Conversation = ({ topic, allowed, address }: { topic: string; allowed: boo
           functionName: "applyJoinGroup",
           args: [connectedAccount],
         });
-        console.log("first34", hash);
 
         if (!hash) return;
 

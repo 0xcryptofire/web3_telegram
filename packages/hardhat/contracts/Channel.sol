@@ -5,7 +5,7 @@ import "hardhat/console.sol";
 
 error APPLICANT_ALREADY_APPLY();
 error APPLICANT_ALREADY_JOINED();
-// error CHANNEL_NOT_ALLOWED();
+error CHANNEL_NOT_ALLOWED();
 
 contract Channel {
 	address public owner;
@@ -14,21 +14,24 @@ contract Channel {
 	address[] public membersForKey;
 	uint256 public countApplicant;
 
-	struct GroupEncryptedMessage {
+	// struct GroupEncryptedMessage {
+	// 	address sender;
+	// 	string encryptedContent;
+	// }
+
+	struct GroupMessage {
 		address sender;
-		string encryptedContent;
+		string message;
 	}
 
-	GroupEncryptedMessage[] public groupEncryptedMessages;
+	// GroupEncryptedMessage[] public groupEncryptedMessages;
+
+	GroupMessage[] public groupMessages;
 
 	mapping(address => bytes32) public participantKeys;
 	mapping(address participant => bool isAllowed) public participants;
 
-	event GroupEncryptedMessageSent(
-		address indexed sender,
-		string encryptedContent
-	);
-
+	event GroupMessageSent(address indexed sender, string message);
 	event channelCreated(address indexed creator);
 	event ParticipantAdded(address indexed participant);
 	event ParticipantAllowed(address indexed participant);
@@ -78,7 +81,6 @@ contract Channel {
 			emit ParticipantAdded(participant);
 		}
 
-		// generate key
 		generateAndSetchannelKey();
 	}
 
@@ -141,32 +143,51 @@ contract Channel {
 	// 	emit ParticipantAdded(_user);
 	// }
 
-	function sendGroupEncryptedMessage(
-		address _user,
-		string memory encryptedContent
-	) public {
-		require(
-			participants[_user],
-			"Only participants can call this function"
-		);
-		groupEncryptedMessages.push(
-			GroupEncryptedMessage(_user, encryptedContent)
-		);
-		emit GroupEncryptedMessageSent(_user, encryptedContent);
+	// function sendGroupEncryptedMessage(
+	// 	address _user,
+	// 	string memory encryptedContent
+	// ) public {
+	// 	require(
+	// 		participants[_user],
+	// 		"Only participants can call this function"
+	// 	);
+	// 	groupEncryptedMessages.push(
+	// 		GroupEncryptedMessage(_user, encryptedContent)
+	// 	);
+	// 	emit GroupEncryptedMessageSent(_user, encryptedContent);
+	// }
+
+	// remove encrypt feature;
+	function sendGroupMessage(address _user, string memory message) public {
+		if (!participants[_user]) {
+			revert CHANNEL_NOT_ALLOWED();
+		}
+		groupMessages.push(GroupMessage(_user, message));
+
+		emit GroupMessageSent(_user, message);
 	}
 
-	function getGroupEncryptedMessages(
+	// function getGroupEncryptedMessages(
+	// 	address _user
+	// ) public view returns (GroupEncryptedMessage[] memory) {
+	// 	require(
+	// 		participants[_user],
+	// 		"Only participants can call this function"
+	// 	);
+	// 	// GroupEncryptedMessage[] memory messages = new GroupEncryptedMessage[](groupEncryptedMessages.length);
+	// 	// for (uint256 i = 0; i < groupEncryptedMessages.length; i++) {
+	// 	// 	messages[i] = GroupEncryptedMessage(groupEncryptedMessages[i].encryptedContent);
+	// 	// }
+	// 	return groupEncryptedMessages;
+	// }
+
+	function getGroupMessages(
 		address _user
-	) public view returns (GroupEncryptedMessage[] memory) {
-		require(
-			participants[_user],
-			"Only participants can call this function"
-		);
-		// GroupEncryptedMessage[] memory messages = new GroupEncryptedMessage[](groupEncryptedMessages.length);
-		// for (uint256 i = 0; i < groupEncryptedMessages.length; i++) {
-		// 	messages[i] = GroupEncryptedMessage(groupEncryptedMessages[i].encryptedContent);
-		// }
-		return groupEncryptedMessages;
+	) public view returns (GroupMessage[] memory) {
+		if (!participants[_user]) {
+			revert CHANNEL_NOT_ALLOWED();
+		}
+		return groupMessages;
 	}
 
 	// // Function to generate and set a unique channel key
