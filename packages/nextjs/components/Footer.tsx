@@ -44,6 +44,9 @@ export const Footer = () => {
       </div>
       <div className="w-full">
         <ul className="menu menu-horizontal w-full">
+          {/* <div className="flex justify-center items-center gap-2 text-sm w-full">
+            <div className="text-center">copyright &copy; {new Date().getFullYear()}</div>
+          </div> */}
           <div className="flex justify-center items-center gap-2 text-sm w-full">
             <div className="text-center">
               <a

@@ -1,4 +1,4 @@
-const conversly = {
+const channel = {
   abi: [
     {
       inputs: [
@@ -13,11 +13,6 @@ const conversly = {
           type: "string",
         },
         {
-          internalType: "bool",
-          name: "_isPrivate",
-          type: "bool",
-        },
-        {
           internalType: "address[]",
           name: "initialParticipants",
           type: "address[]",
@@ -27,17 +22,9 @@ const conversly = {
       type: "constructor",
     },
     {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          internalType: "address",
-          name: "creator",
-          type: "address",
-        },
-      ],
-      name: "ConversationCreated",
-      type: "event",
+      inputs: [],
+      name: "APPLICANT_ALREADY_JOINED",
+      type: "error",
     },
     {
       anonymous: false,
@@ -72,6 +59,32 @@ const conversly = {
       type: "event",
     },
     {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "participant",
+          type: "address",
+        },
+      ],
+      name: "ParticipantAllowed",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "creator",
+          type: "address",
+        },
+      ],
+      name: "channelCreated",
+      type: "event",
+    },
+    {
       inputs: [
         {
           internalType: "address",
@@ -79,14 +92,27 @@ const conversly = {
           type: "address",
         },
       ],
-      name: "addParticipant",
+      name: "allowParticipant",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "user",
+          type: "address",
+        },
+      ],
+      name: "applyJoinGroup",
       outputs: [],
       stateMutability: "nonpayable",
       type: "function",
     },
     {
       inputs: [],
-      name: "conversationName",
+      name: "channelName",
       outputs: [
         {
           internalType: "string",
@@ -98,19 +124,13 @@ const conversly = {
       type: "function",
     },
     {
-      inputs: [
-        {
-          internalType: "address",
-          name: "_user",
-          type: "address",
-        },
-      ],
-      name: "getConversationKeys",
+      inputs: [],
+      name: "countApplicant",
       outputs: [
         {
-          internalType: "bytes32",
+          internalType: "uint256",
           name: "",
-          type: "bytes32",
+          type: "uint256",
         },
       ],
       stateMutability: "view",
@@ -127,9 +147,58 @@ const conversly = {
       name: "getGroupEncryptedMessages",
       outputs: [
         {
-          internalType: "string[]",
+          components: [
+            {
+              internalType: "address",
+              name: "sender",
+              type: "address",
+            },
+            {
+              internalType: "string",
+              name: "encryptedContent",
+              type: "string",
+            },
+          ],
+          internalType: "struct Channel.GroupEncryptedMessage[]",
           name: "",
-          type: "string[]",
+          type: "tuple[]",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "getNumberOfParticipant",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+        {
+          internalType: "address[]",
+          name: "",
+          type: "address[]",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "_user",
+          type: "address",
+        },
+      ],
+      name: "getchannelKeys",
+      outputs: [
+        {
+          internalType: "bytes32",
+          name: "",
+          type: "bytes32",
         },
       ],
       stateMutability: "view",
@@ -179,29 +248,22 @@ const conversly = {
       type: "function",
     },
     {
-      inputs: [],
-      name: "isPrivate",
-      outputs: [
-        {
-          internalType: "bool",
-          name: "",
-          type: "bool",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
       inputs: [
         {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      name: "membersForKey",
+      outputs: [
+        {
           internalType: "address",
-          name: "_user",
+          name: "",
           type: "address",
         },
       ],
-      name: "joinConversation",
-      outputs: [],
-      stateMutability: "nonpayable",
+      stateMutability: "view",
       type: "function",
     },
     {
@@ -248,7 +310,7 @@ const conversly = {
       outputs: [
         {
           internalType: "bool",
-          name: "isParticipant",
+          name: "isAllowed",
           type: "bool",
         },
       ],
@@ -276,4 +338,4 @@ const conversly = {
   ],
 };
 
-export default conversly;
+export default channel;

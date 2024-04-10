@@ -12,13 +12,13 @@ const Home: NextPage = () => {
 
   const { address: connectedAccount, isConnected } = useAccount();
 
-  const { data: channelRegistryContract, isLoading: isLoadingConverslyRegistryContract } =
+  const { data: channelRegistryContract, isLoading: isLoadingChannelRegistryContract } =
     useDeployedContractInfo("ChannelRegistry");
   const publicClient = usePublicClient();
 
   useEffect(() => {
     (async () => {
-      if (!isConnected || isLoadingConverslyRegistryContract) return;
+      if (!isConnected || isLoadingChannelRegistryContract) return;
 
       setIsLoading(true);
 
@@ -36,7 +36,7 @@ const Home: NextPage = () => {
       setIsLoading(false);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoadingConverslyRegistryContract, isConnected]);
+  }, [isLoadingChannelRegistryContract, isConnected]);
 
   return (
     <>

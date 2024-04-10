@@ -5,6 +5,7 @@
 /* eslint-disable react/no-unescaped-entities */
 // import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/router";
 import type { NextPage } from "next";
 import { isAddress } from "viem";
 import { useAccount, usePublicClient, useWalletClient } from "wagmi";
@@ -14,6 +15,7 @@ import { notification } from "~~/utils/scaffold-eth";
 
 const Create: NextPage = () => {
   // component states
+  const router = useRouter();
   const [topic, setTopic] = useState<string>("");
   const [isCreating, setIsCreating] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -77,6 +79,7 @@ const Create: NextPage = () => {
 
     setIsLoading(false);
     setIsCreating(false);
+    router.push("/");
   };
   return (
     <>
