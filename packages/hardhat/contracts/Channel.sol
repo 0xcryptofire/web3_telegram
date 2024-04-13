@@ -22,6 +22,7 @@ contract Channel {
 	struct GroupMessage {
 		address sender;
 		string message;
+		string fileInfo;
 	}
 
 	// GroupEncryptedMessage[] public groupEncryptedMessages;
@@ -31,7 +32,11 @@ contract Channel {
 	mapping(address => bytes32) public participantKeys;
 	mapping(address participant => bool isAllowed) public participants;
 
-	event GroupMessageSent(address indexed sender, string message);
+	event GroupMessageSent(
+		address indexed sender,
+		string message,
+		string fileInfo
+	);
 	event channelCreated(address indexed creator);
 	event ParticipantAdded(address indexed participant);
 	event ParticipantAllowed(address indexed participant);
@@ -136,50 +141,19 @@ contract Channel {
 		return (count, applicants);
 	}
 
-	// function joinchannel(address _user) public {
-	// 	if (participants[_user] != true) {
-	// 		revert CHANNEL_NOT_ALLOWED();
-	// 	}
-	// 	emit ParticipantAdded(_user);
-	// }
-
-	// function sendGroupEncryptedMessage(
-	// 	address _user,
-	// 	string memory encryptedContent
-	// ) public {
-	// 	require(
-	// 		participants[_user],
-	// 		"Only participants can call this function"
-	// 	);
-	// 	groupEncryptedMessages.push(
-	// 		GroupEncryptedMessage(_user, encryptedContent)
-	// 	);
-	// 	emit GroupEncryptedMessageSent(_user, encryptedContent);
-	// }
-
 	// remove encrypt feature;
-	function sendGroupMessage(address _user, string memory message) public {
+	function sendGroupMessage(
+		address _user,
+		string memory message,
+		string memory fileInfo
+	) public {
 		if (!participants[_user]) {
 			revert CHANNEL_NOT_ALLOWED();
 		}
-		groupMessages.push(GroupMessage(_user, message));
+		groupMessages.push(GroupMessage(_user, message, fileInfo));
 
-		emit GroupMessageSent(_user, message);
+		emit GroupMessageSent(_user, message, fileInfo);
 	}
-
-	// function getGroupEncryptedMessages(
-	// 	address _user
-	// ) public view returns (GroupEncryptedMessage[] memory) {
-	// 	require(
-	// 		participants[_user],
-	// 		"Only participants can call this function"
-	// 	);
-	// 	// GroupEncryptedMessage[] memory messages = new GroupEncryptedMessage[](groupEncryptedMessages.length);
-	// 	// for (uint256 i = 0; i < groupEncryptedMessages.length; i++) {
-	// 	// 	messages[i] = GroupEncryptedMessage(groupEncryptedMessages[i].encryptedContent);
-	// 	// }
-	// 	return groupEncryptedMessages;
-	// }
 
 	function getGroupMessages(
 		address _user

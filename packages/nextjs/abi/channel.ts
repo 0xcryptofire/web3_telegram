@@ -46,6 +46,12 @@ const channel = {
           name: "message",
           type: "string",
         },
+        {
+          indexed: false,
+          internalType: "string",
+          name: "fileInfo",
+          type: "string",
+        },
       ],
       name: "GroupMessageSent",
       type: "event",
@@ -163,6 +169,11 @@ const channel = {
               name: "message",
               type: "string",
             },
+            {
+              internalType: "string",
+              name: "fileInfo",
+              type: "string",
+            },
           ],
           internalType: "struct Channel.GroupMessage[]",
           name: "",
@@ -227,6 +238,11 @@ const channel = {
         {
           internalType: "string",
           name: "message",
+          type: "string",
+        },
+        {
+          internalType: "string",
+          name: "fileInfo",
           type: "string",
         },
       ],
@@ -332,6 +348,11 @@ const channel = {
         {
           internalType: "string",
           name: "message",
+          type: "string",
+        },
+        {
+          internalType: "string",
+          name: "fileInfo",
           type: "string",
         },
       ],
